@@ -18,8 +18,11 @@ export default function StockPickerPage() {
     data: stockList,
     refetch: reFetchStockList,
   } = useFetchStockList(debouncedSearch);
-  const { data: stockDetails, isLoading: isLoadingStockDetails } =
-    useFetchStockDetails(symbol);
+  const {
+    data: stockDetails,
+    isLoading: isLoadingStockDetails,
+    status,
+  } = useFetchStockDetails(symbol);
   const {
     data: stockTimeSeriesData,
     isLoading: isLoadingTimeSeriesData,
@@ -41,10 +44,11 @@ export default function StockPickerPage() {
     }
   }, [symbol]);
 
+  const stockDataLoading = isLoadingStockDetails || isLoadingTimeSeriesData;
   return (
     <>
       <Row justify="center">
-        <Col sm={12}>
+        <Col md={12} xs={24}>
           <AutoComplete
             value={value}
             options={stockList || []}
@@ -52,7 +56,9 @@ export default function StockPickerPage() {
             onSelect={onSelect}
             notFoundContent={
               isFetchingStockList ? (
-                <div style={{ textAlign: "center" }}></div>
+                <div style={{ textAlign: "center" }}>
+                  <Spin />
+                </div>
               ) : (
                 "No matches"
               )
@@ -62,7 +68,7 @@ export default function StockPickerPage() {
             <Input.Search
               size="large"
               enterButton
-              loading={isLoadingStockDetails || isLoadingTimeSeriesData}
+              loading={stockDataLoading}
               onSearch={(e) => onSelect(e)}
               placeholder={"Search Stock Symbol..."}
             />
@@ -73,13 +79,13 @@ export default function StockPickerPage() {
         () =>
           stockDetails && stockTimeSeriesData ? (
             <Row gutter={10} style={{ marginTop: 30 }}>
-              <Col sm={12}>
+              <Col md={12} xs={24}>
                 <StockDetails
                   stockDetails={stockDetails}
                   price={stockTimeSeriesData.dataset[0]}
                 />
               </Col>
-              <Col sm={12}>
+              <Col md={12} xs={24}>
                 <StockChart
                   labels={stockTimeSeriesData.labels}
                   dataset={stockTimeSeriesData.dataset}
@@ -87,12 +93,14 @@ export default function StockPickerPage() {
               </Col>
             </Row>
           ) : (
-            <Typography.Title
-              level={2}
-              style={{ marginTop: 50, textAlign: "center" }}
-            >
-              Some went wrong or stock Not found
-            </Typography.Title>
+            !stockDataLoading && (
+              <Typography.Title
+                level={2}
+                style={{ marginTop: 50, textAlign: "center" }}
+              >
+                Some went wrong or stock Not found
+              </Typography.Title>
+            )
           ),
         [
           stockDetails,

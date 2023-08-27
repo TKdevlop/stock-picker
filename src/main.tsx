@@ -34,8 +34,3 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
     </QueryClientProvider>
   </React.StrictMode>
 );
-
-// add system dark mode support
-// add form library like react-hook-form or use ant build in once
-// To keep timeSeries separate so we use else where
-// free API limitation only showing 5 min interval

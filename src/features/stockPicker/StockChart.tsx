@@ -26,10 +26,6 @@ export const options = {
     legend: {
       position: "top" as const,
     },
-    title: {
-      display: true,
-      text: "Chart.js Line Chart",
-    },
   },
 };
 
@@ -38,7 +34,6 @@ interface Props {
   dataset: number[];
 }
 export function StockChart({ labels, dataset }: Props) {
-  console.log(labels, dataset);
   const data = {
     labels,
     datasets: [
