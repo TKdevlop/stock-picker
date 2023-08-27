@@ -1,0 +1,14 @@
+
+.stock-table table {
+  font-family: Arial, Helvetica, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+.stock-table table td, table th {
+  border: 1px solid #ddd;
+  padding: 8px;
+}
+.stock-table table td:first-child{
+  white-space: nowrap;
+}
