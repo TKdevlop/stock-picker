@@ -49,6 +49,7 @@ export default function StockDetails({ stockDetails, price }: Props) {
               {new Intl.NumberFormat("en-US", {
                 currency: "USD",
                 style: "currency",
+                notation: "compact",
               }).format(parseInt(stockDetails.MarketCapitalization))}
             </td>
           </tr>

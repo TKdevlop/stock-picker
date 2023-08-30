@@ -9,19 +9,17 @@ import { StockChart } from "./StockChart";
 import { useNavigate, useParams } from "react-router-dom";
 
 export default function StockPickerPage() {
-  const [value, setValue] = useState<string>("");
   const navigate = useNavigate();
   const { symbol } = useParams();
+  const [value, setValue] = useState<string>(symbol || "");
+
   const debouncedSearch = useDebounce(value, 500);
-  const {
-    isFetching: isFetchingStockList,
-    data: stockList,
-    refetch: reFetchStockList,
-  } = useFetchStockList(debouncedSearch);
+  const { isFetching: isFetchingStockList, data: stockList } =
+    useFetchStockList(debouncedSearch);
   const {
     data: stockDetails,
     isLoading: isLoadingStockDetails,
-    status,
+    refetch: reFetchStockDetails,
   } = useFetchStockDetails(symbol);
   const {
     data: stockTimeSeriesData,
@@ -30,14 +28,17 @@ export default function StockPickerPage() {
   } = useFetchStockTimeSeriesIntraDay(symbol);
 
   const onSelect = (selectedValue: string) => {
-    navigate(`/stock-picker/${selectedValue}`);
+    navigate(
+      `/stock-picker/${encodeURIComponent(selectedValue.replace(/\./g, "%2E"))}`
+    );
   };
 
   //effect to refetch stock data in background at a set interval
   useEffect(() => {
     if (symbol) {
+      setValue(symbol);
       const interval = setInterval(() => {
-        reFetchStockList();
+        reFetchStockDetails();
         reFetchTimeSeriesData();
       }, 60000);
       return () => clearInterval(interval);
@@ -77,7 +78,9 @@ export default function StockPickerPage() {
       </Row>
       {useMemo(
         () =>
-          stockDetails && stockTimeSeriesData ? (
+          stockDetails &&
+          Object.keys(stockDetails).length > 0 &&
+          stockTimeSeriesData ? (
             <Row gutter={10} style={{ marginTop: 30 }}>
               <Col md={12} xs={24}>
                 <StockDetails
@@ -93,12 +96,13 @@ export default function StockPickerPage() {
               </Col>
             </Row>
           ) : (
-            !stockDataLoading && (
+            !stockDataLoading &&
+            symbol && (
               <Typography.Title
                 level={2}
                 style={{ marginTop: 50, textAlign: "center" }}
               >
-                Some went wrong or stock Not found
+                Something went wrong or stock Not found
               </Typography.Title>
             )
           ),
